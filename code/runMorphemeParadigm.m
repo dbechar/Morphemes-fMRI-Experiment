@@ -5,7 +5,6 @@ clear all; close all; clc
 cd(fileparts(mfilename('fullpath')));
 KbName('UnifyKeyNames')
 addpath(fullfile('..','functions'));
-[params] = getParams();
 
 % Running on PTB-3? Abort otherwise.
 AssertOpenGL;
@@ -13,22 +12,23 @@ AssertOpenGL;
 %% collect subject info (what other information?)
 subjectNumber = input('Please enter subject number: '); % prompt the user to enter subject number
 
-dataDir = '../triallists/'; % directory where the triallists are stored
-fileName = [num2str(subjectNumber) '.csv']; % construct the filename based on subject number
-
-%% randomly choose the correct key 
+%% randomly choose the correct key (f or j)
 responseKeys = {'f', 'j'};
 correctKeyIndex = randi(2);
 correctKey = responseKeys{correctKeyIndex};
 differentKey = setdiff(responseKeys, correctKey);
 
 %% set up the screen and some initial variables
-Screen('Preference', 'SkipSyncTests', 0); % should I skip screen test?
-[window, rect] = Screen('OpenWindow', 0); % open a window on the primary monitor (1 if on another window)
+Screen('Preference', 'SkipSyncTests', 1); 
+[window, rect] = Screen('OpenWindow', 0); % open a window on the primary monitor
 
 % load stimuli and log
-trialList = readtable(fullfile(dataDir, fileName));
-fid_log = createLogFile(subjectNumber); % OPEN LOG
+fileName = [sprintf('../triallists/%d.csv', subjectNumber)]; % construct filename based on subject number
+trialList = readtable(fullfile('../triallists', fileName));
+fid_log = createLogFile(subjectNumber); % open log
+
+%% get params
+[params] = getParams(trialList);
 
 %% start experiment
 % loop over trials and blocks
@@ -37,9 +37,12 @@ try
     trialOrder = randperm(height(trialList));
     trialList = trialList(trialOrder, :);
     KbStrokeWait;
-    %KbQueueStart;
+    KbQueueCreate(params.deviceIndex);
+    KbQueueStart (params.deviceIndex);
+    HideCursor()
     presentIntroSlide(window, params, correctKey, differentKey);
     nCorrect = 0; % set the number of correct responses to 0
+
     for i = 1:params.nTrials
         % determine whether this is the last trial in a block
         blockNumber = ceil(i/params.nTrialsPerBlock);
@@ -48,7 +51,7 @@ try
         % get the current trial information
         first = trialList.first(i);
         second = trialList.second(i);
-        is_error = trialList.is_error(i) == 0;
+        is_error = trialList.is_error(i);
         
         % initialize run_starttime
         run_starttime = GetSecs();
@@ -67,51 +70,42 @@ try
         firstChar = first{1};
         DrawFormattedText(window, firstChar, 'center', 'center', 0);
         Screen('Flip', window);
-        WaitSecs(params.wordDuration);
+        WaitSecs(params.firstDuration);
         
         % present second fixation cross (jittered presentation)
+        fixationStart = GetSecs(); % add this line before presenting the second fixation cross
         DrawFormattedText(window, '+', 'center', 'center', 0);
         Screen('Flip', window);
         WaitSecs(params.secondFixationDuration);
-        
+
         % present second word
         secondChar = second{1};
         DrawFormattedText(window, secondChar, 'center', 'center', 0);
         Screen('Flip', window);
-        WaitSecs(params.wordDuration);
+        WaitSecs(params.secondDuration);
 
         % get response and check if it's correct
-        [keyCode, correct, rt] = waitForKeyPress (correctKey, is_error, nCorrect, run_starttime);
-
+        [keyCode, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, run_starttime);
+ 
         % blank screen until trial length = 2s
         Screen('FillRect', window, 128);
         DrawFormattedText(window, ' ', 'center', 'center', 0);
         Screen('Flip', window);
         WaitSecs(params.blankScreen);
 
-        % get response and check if it's correct
-        %[keyCode, correct, rt] = waitForKeyPress (correctKey, is_error, nCorrect, run_starttime);
-
-        fprintf(fid_log, '%s,%s,%d,%s,%s,%d,%f\n', first{1}, second{1}, is_error, correctKey, KbName(keyCode), correct, rt);        
+        fprintf(fid_log, '%s,%s,%d,%s,%s,%d,%f,%s,%s,%s,%s,%s,%d,%s,%d,%d,%s,%s\n', ...
+                first{1}, second{1}, is_error, correctKey, KbName(keyCode), correct, rt, ...
+                trialList.condition{i}, trialList.prefixes{i}, trialList.root{i}, ...
+                trialList.suffixes{i}, trialList.target_type{i}, trialList.wordlength(i),...
+                trialList.error_to_which_morpheme{i}, trialList.i_morpheme(i), trialList.i_within_morpheme(i),...
+                trialList.target_letter_before_error{i}, trialList.letter_after_error{i});        
 
         % show feedback after every block
+        presentFeedbackMsg (window, isLastTrialInBlock, blockNumber, nCorrect, params)
+        
         if isLastTrialInBlock
-            if blockNumber == params.nBlocks % check if this is the last block
-                feedbackMsg = sprintf ('You got %d out of %d correct! This was the last block.', nCorrect, params.nTrialsPerBlock);
-            else
-                feedbackMsg = sprintf('You got %d out of %d correct! Press spacebar to continue.', nCorrect, params.nTrialsPerBlock);
-            end
-            DrawFormattedText(window, feedbackMsg, 'center', 'center', 0);
-            Screen('Flip', window);
-            while 1 % wait for spacebar press
-                [keyIsDown, ~, keyCode] = KbCheck();
-                if keyIsDown && keyCode(KbName('space'))
-                    break;
-                end
-                WaitSecs(0.01);
-            end
+        nCorrect = 0;
         end
-   
 
         if i == params.nTrials
             fclose(fid_log);
