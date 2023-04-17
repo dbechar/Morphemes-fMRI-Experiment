@@ -1,0 +1,11 @@
+first,second,condition,prefixes,root,suffixes,word,target_type,error_to_which_morpheme,i_morpheme,i_within_morpheme,target_letter_before_error,letter_after_error,error_word,is_error,wordlength
+preview,previem,pr,pre,view,,preview,target,r,,3,w,m,previem,1,7
+unread,unread,pr,un,read,,unread,target,p,0,1,n,r,urread,0,6
+clandestine,clandestene,r,,clandestine,,clandestine,control,r,,8,i,e,clandestene,1,11
+silhouette,selhouette,r,,silhouette,,silhouette,control,r,,1,i,e,selhouette,1,10
+deactivation,deactivation,prsss,de,act,iv_at_ion,deactivation,target,r,,0,a,i,deictivation,0,12
+guillotine,guillotiye,r,,guillotine,,guillotine,control,r,,8,n,y,guillotiye,1,10
+rhododendron,rhododendron,r,,rhododendron,,rhododendron,control,r,,6,e,u,rhododundron,0,12
+architect,aychitect,r,,architect,,architect,control,r,,1,r,y,aychitect,1,9
+optionally,optionally,rsss,,opt,ion_al_ly,optionally,target,r,,2,t,p,oppionally,0,10
+unlawful,unlawful,prs,un,law,ful,unlawful,target,r,,0,l,m,unmawful,0,8
