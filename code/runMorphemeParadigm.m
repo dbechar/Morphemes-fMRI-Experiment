@@ -42,7 +42,6 @@ try
     HideCursor()
     presentIntroSlide(window, params, correctKey, differentKey);
     nCorrect = 0; % set the number of correct responses to 0
-
     for i = 1:params.nTrials
         % determine whether this is the last trial in a block
         blockNumber = ceil(i/params.nTrialsPerBlock);
@@ -73,20 +72,22 @@ try
         WaitSecs(params.firstDuration);
         
         % present second fixation cross (jittered presentation)
-        fixationStart = GetSecs(); % add this line before presenting the second fixation cross
         DrawFormattedText(window, '+', 'center', 'center', 0);
         Screen('Flip', window);
         WaitSecs(params.secondFixationDuration);
 
         % present second word
+        %secondWordStart = GetSecs();
         secondChar = second{1};
         DrawFormattedText(window, secondChar, 'center', 'center', 0);
         Screen('Flip', window);
         WaitSecs(params.secondDuration);
 
         % get response and check if it's correct
+        %while GetSecs < secondWordStart + params.secondDuration + params.blankScreen
         [keyCode, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, run_starttime);
- 
+        %end 
+
         % blank screen until trial length = 2s
         Screen('FillRect', window, 128);
         DrawFormattedText(window, ' ', 'center', 'center', 0);
