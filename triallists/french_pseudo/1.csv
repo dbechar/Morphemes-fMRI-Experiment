@@ -1,0 +1,7 @@
+﻿first,second,condition,root,prefixes,suffixes,word,target_type,error_to_which_morpheme,i_morpheme,i_within_morpheme,target_letter_before_error,letter_after_error,error_word,is_error,wordlength
+coit,cait,r,coit,,,coit,target,r,,1,o,a,cait,1,4
+fodmanemt,fodmanemt,rss,fod,,ma_nemt,fodmanemt,control,r,,1,o,u,fudmanemt,0,9
+rusroqu,rusmoqu,pr,roqu,rus,,rusroqu,control,r,,0,r,m,rusmoqu,1,7
+surfil,surfil,pr,fil,sur,,surfil,target,p,0,2,r,l,sulfil,0,6
+préjur,préjur,pr,jur,pré,,préjur,target,p,0,2,é,a,prajur,0,6
+ernaujeru,ernaujaru,prs,nauj,er,eru,ernaujeru,control,s,0,0,e,a,ernaujaru,1,9

@@ -1,0 +1,7 @@
+first,second,condition,root,prefixes,suffixes,word,target_type,error_to_which_morpheme,i_morpheme,i_within_morpheme,target_letter_before_error,letter_after_error,error_word,is_error,wordlength
+cunist,cunist,rs,cun,,ist,cunist,target,s,0,1,s,p,cunipt,0,6
+dedrunate,dedrunite,prs,drun,de,ate,dedrunate,target,s,0,0,a,i,dedrunite,1,9
+inulouk,inulouk,pr,louk,inu,,inulouk,control,r,,0,l,r,inurouk,0,7
+toncsit,toncsit,rs,tonc,,sit,toncsit,control,r,,2,n,r,torcsit,0,7
+ersimmeak,ersimmeak,ppr,meak,er_sim,,ersimmeak,control,r,,1,e,a,ersimmaak,0,9
+regirt,rigirt,pr,girt,re,,regirt,target,p,0,1,e,i,rigirt,1,6
