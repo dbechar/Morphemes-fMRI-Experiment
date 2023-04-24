@@ -28,6 +28,7 @@ while 1
         else % ignore all other keys
             continue;
         end
+        fprintf('key response given\n')
         break; % exit loop once a key has been pressed
     end
 end
