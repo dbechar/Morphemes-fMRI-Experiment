@@ -22,8 +22,9 @@ differentKey = setdiff(responseKeys, correctKey);
 
 %% set up the screen and some initial variables
 Screen('Preference', 'SkipSyncTests', 1); 
-[window, rect] = Screen('OpenWindow', 0); % open a window on the primary monitor
-Screen('TextFont', window, 'Arial')
+% [window, rect] = Screen('OpenWindow', 0); % open a window on the primary monitor
+[window, rect] = Screen('OpenWindow', 1); % open a window on the primary monitor
+Screen('TextFont', window, 'Arial');
 
 % load stimuli and log
 pseudoFileName = [sprintf('../triallists/%s_pseudo/%d.csv', language, subjectNumber)]; % construct filename based on subject number and language
@@ -33,15 +34,18 @@ trialLists = {readtable(fullfile('../triallists', pseudoFileName)), readtable(fu
 %% start experiment
 % loop over trials and blocks
 try  
-    KbStrokeWait;
+%     KbStrokeWait;
     KbQueueCreate(deviceIndex);
     KbQueueStart (deviceIndex);
     HideCursor()
     presentIntroSlide(window, correctKey, differentKey);
     nCorrect = 0; % set the number of correct responses to 0
     fid_log = createLogFile(subjectNumber); % open log
-    experimentStart = GetSecs();
-
+    
+    % get trigger from scanner
+    % experimentStart = GetSecs();
+    experimentStart = receiveTrigger('t', 'ESCAPE');
+    
     % iterate over the two trial lists
     for t = 1:2 
         trialList = trialLists{t};
@@ -64,8 +68,7 @@ try
             % initialize run_starttime
             run_starttime = GetSecs();
     
-            %% get trigger from scanner
-            %receiveTrigger('t', 'ESCAPE');
+
     
             % present fixation cross
             firstFixationOnset = GetSecs - experimentStart;
