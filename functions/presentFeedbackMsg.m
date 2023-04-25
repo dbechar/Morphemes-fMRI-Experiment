@@ -1,4 +1,5 @@
 function presentFeedbackMsg (responseKeys, window, isLastTrialInBlock, blockNumber, nCorrect, params, t)
+responseKeyCodes = KbName(responseKeys);
 if isLastTrialInBlock
     if blockNumber == params.nBlocks && t == 2 % check if this is the last block of the second triallist 
         feedbackMsg = sprintf (['You got %d out of %d correct! \n\n ' ...
@@ -14,7 +15,7 @@ if isLastTrialInBlock
     Screen('Flip', window);
     while 1 % wait for keypress
         [keyIsDown, ~, keyCode] = KbCheck();
-        if keyIsDown && any(keyCode(responseKeys))
+        if keyIsDown && any(keyCode(responseKeyCodes))
             break;
         elseif keyIsDown && keyCode(KbName ('ESCAPE')) % check for escape key
             error('Escape key pressed. Experiment terminated by user.');

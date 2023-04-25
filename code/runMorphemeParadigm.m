@@ -65,7 +65,7 @@ try
             run_starttime = GetSecs();
     
             %% get trigger from scanner
-            receiveTrigger('t', 'ESCAPE');
+            %receiveTrigger('t', 'ESCAPE');
     
             % present fixation cross
             firstFixationOnset = GetSecs - experimentStart;
@@ -102,10 +102,12 @@ try
             Screen('TextFont', window, 'Arial'); % reset font to Arial
     
             % get response and check if it's correct
-            [keyCode, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, run_starttime);
-    
+            %while GetSecs < secondWordOnset + params.secondDuration
+            [keyCode, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, run_starttime, secondWordOnset, params);
+            %end
+
             fprintf(fid_log, '%s,%f,%d,%d,%d,%s,%s,%d,%s,%s,%d,%f,%s,%s,%s,%s,%s,%d,%s,%d,%d,%s,%s\n', ...
-                    'secondWord', secondWordOnset, t, blockNumber,i, first{1}, second{1}, is_error, correctKey, KbName(keyCode), correct, rt, ...
+                    'secondWord', secondWordOnset, t, blockNumber,i, first{1}, second{1}, is_error, correctKey, keyCode, correct, rt, ...
                     trialList.condition{i}, trialList.prefixes{i}, trialList.root{i}, ...
                     trialList.suffixes{i}, trialList.target_type{i}, trialList.wordlength(i),...
                     trialList.error_to_which_morpheme{i}, trialList.i_morpheme(i), trialList.i_within_morpheme(i),...

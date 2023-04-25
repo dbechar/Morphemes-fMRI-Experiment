@@ -1,4 +1,5 @@
-function [keyCode, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, run_starttime)
+function [keyCode, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, run_starttime, secondWordOnset, params)
+
 
 if ~nargin
     correctKey = [];
@@ -6,9 +7,11 @@ end
 
 % initialize variables
 correct = 0;
+keyCode = NaN;
+rt = NaN
 
 % get response and check if it's correct
-while 1
+while GetSecs < secondWordOnset + params.secondDuration
     [keyIsDown, secs, keyCode] = KbCheck();
     if keyIsDown
         rt = (secs - run_starttime); % calculate reaction time
@@ -30,5 +33,8 @@ while 1
         end
         fprintf('key response given\n')
         break; % exit loop once a key has been pressed
+    else 
+        fprintf ('no response given\n')
+        %pass
     end
 end
