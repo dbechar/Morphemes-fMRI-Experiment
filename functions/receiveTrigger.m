@@ -1,7 +1,13 @@
-function receive_trigger(trigger, escapeKey)
-%% adapted from a script by Annahita Sarré
+function scanner_starttime = receiveTrigger(trigger, escapeKey, window)
+
+text = sprintf('Waiting for the MRI signal');
+
+% display text
+DrawFormattedText(window, text, 'center', 'center', 0);
+Screen('Flip', window);
+
 % wait for the scanner trigger to start trial
-fprintf('### Waiting for the trigger... \n')
+fprintf('Waiting for the trigger... \n')
 % Set the default values of the input arguments if they're not provided.
 if nargin < 1
     trigger = 't';
@@ -10,27 +16,26 @@ if nargin < 2
     escapeKey = 'ESCAPE';
 end
 
+key_trigger = KbName(trigger);
+key_escape  = KbName(escapeKey);
+
 % wait for the trigger or escape key to be pressed.
-TTL = 0;
-keyIsDown = 0;
-while TTL == 0
-    [keyIsDown, ~, keyCode] = KbCheck;
+while 1
+    [keyIsDown, secs, keyCode] = KbCheck;
     if keyIsDown
-        if strcmp(KbName(keyCode), trigger) == 1
-            TTL = 1; % Start the experiment.
+        if keyCode(key_trigger)
+            scanner_starttime = secs; % Start the experiment.
             break;
-        elseif strcmp(KbName(keyCode), escapeKey) == 1
+        elseif keyCode(key_escape)
             Priority(0);
-            ShowCursor;
+            sca();
             error('Escape key pressed. Experiment terminated by user.');
-        else
-            TTL = 0;
         end
     end
 end
 
-fprintf('### Trigger received \n')
+fprintf('Trigger received! \n')
 % Wait for a short duration to avoid KbCheck detecting the trigger key.
-WaitSecs(0.5);
+% WaitSecs(0.5);
 
 end

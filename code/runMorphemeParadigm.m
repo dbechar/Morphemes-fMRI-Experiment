@@ -21,9 +21,9 @@ correctKey = responseKeys{correctKeyIndex};
 differentKey = setdiff(responseKeys, correctKey);
 
 %% set up the screen and some initial variables
-Screen('Preference', 'SkipSyncTests', 1); 
-% [window, rect] = Screen('OpenWindow', 0); % open a window on the primary monitor
-[window, rect] = Screen('OpenWindow', 1); % open a window on the primary monitor
+Screen('Preference', 'SkipSyncTests', 0); 
+[window, rect] = Screen('OpenWindow', 0); % open a window on the primary monitor
+%[window, rect] = Screen('OpenWindow', 1); % open a window on the primary monitor
 Screen('TextFont', window, 'Arial');
 
 % load stimuli and log
@@ -34,24 +34,27 @@ trialLists = {readtable(fullfile('../triallists', pseudoFileName)), readtable(fu
 %% start experiment
 % loop over trials and blocks
 try  
-%     KbStrokeWait;
     KbQueueCreate(deviceIndex);
     KbQueueStart (deviceIndex);
     HideCursor()
-    presentIntroSlide(window, correctKey, differentKey);
+    presentIntroSlide(window, correctKey, differentKey, responseKeys);
     nCorrect = 0; % set the number of correct responses to 0
     fid_log = createLogFile(subjectNumber); % open log
     
     % get trigger from scanner
-    % experimentStart = GetSecs();
-    experimentStart = receiveTrigger('t', 'ESCAPE');
+    experimentStart = receiveTrigger('t', 'ESCAPE', window);
     
-    % iterate over the two trial lists
-    for t = 1:2 
+    %% randomly choose the order of the trial lists
+    trialListOrder = randperm(2);
+    bigBlockCount = 0;
+
+    % iterate over the triallists (randomly chose which one is shown first)
+    for t = trialListOrder
         trialList = trialLists{t};
         trialOrder = randperm(height(trialList)); % randomize the order of trials
         trialList = trialList(trialOrder, :);
-        
+        bigBlockCount = bigBlockCount+1;
+            
         %% get params
         [params] = getParams(window, trialList);
 
@@ -59,20 +62,16 @@ try
             % determine whether this is the last trial in a block
             blockNumber = ceil(i/params.nTrialsPerBlock);
             isLastTrialInBlock = (mod(i, params.nTrialsPerBlock) == 0) || (i == params.nTrials);
-            
+
             % get the current trial information
             first = trialList.first(i);
             second = trialList.second(i);
             is_error = trialList.is_error(i);
-            
-            % initialize run_starttime
-            run_starttime = GetSecs();
-    
-
     
             % present fixation cross
             firstFixationOnset = GetSecs - experimentStart;
             Screen('FillRect', window, 128);
+            Screen('TextSize', window, 40);
             DrawFormattedText(window, '+', 'center', 'center', 0);
             Screen('Flip', window);
             WaitSecs(params.firstFixationDuration);
@@ -100,23 +99,21 @@ try
             Screen('TextStyle', window, 2); % set the text style to cursive
             DrawFormattedText(window, secondChar, 'center', 'center', 0);
             Screen('Flip', window);
+
+            % get response and check if it's correct
+            [keyName, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, params, secondWordOnset, experimentStart);
+            
             WaitSecs(params.secondDuration);
             Screen('TextStyle', window, 0); % reset the text style to normal
             Screen('TextFont', window, 'Arial'); % reset font to Arial
     
-            % get response and check if it's correct
-            %while GetSecs < secondWordOnset + params.secondDuration
-            [keyCode, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, run_starttime, secondWordOnset, params);
-            %end
-
             fprintf(fid_log, '%s,%f,%d,%d,%d,%s,%s,%d,%s,%s,%d,%f,%s,%s,%s,%s,%s,%d,%s,%d,%d,%s,%s\n', ...
-                    'secondWord', secondWordOnset, t, blockNumber,i, first{1}, second{1}, is_error, correctKey, keyCode, correct, rt, ...
+                    'secondWord', secondWordOnset, t, blockNumber, i, first{1}, second{1}, is_error, correctKey, keyName, correct, rt, ...
                     trialList.condition{i}, trialList.prefixes{i}, trialList.root{i}, ...
                     trialList.suffixes{i}, trialList.target_type{i}, trialList.wordlength(i),...
                     trialList.error_to_which_morpheme{i}, trialList.i_morpheme(i), trialList.i_within_morpheme(i),...
                     trialList.target_letter_before_error{i}, trialList.letter_after_error{i});        
             
-
             % blank screen until trial length = 2s
             Screen('FillRect', window, 128);
             DrawFormattedText(window, ' ', 'center', 'center', 0);
@@ -124,14 +121,14 @@ try
             WaitSecs(params.blankScreen);
 
             % show feedback after every block
-            presentFeedbackMsg (responseKeys, window, isLastTrialInBlock, blockNumber, nCorrect, params, t)
+            presentFeedbackMsg (window, isLastTrialInBlock, blockNumber, nCorrect, params, bigBlockCount)
             
             if isLastTrialInBlock
             nCorrect = 0;
             fprintf('Block %d finished\n', blockNumber)
             end
     
-            if i == params.nTrials && t == 2
+            if i == params.nTrials && bigBlockCount == 2
                 fclose(fid_log);
                 fprintf('Data is saved correctly\n')
             end
