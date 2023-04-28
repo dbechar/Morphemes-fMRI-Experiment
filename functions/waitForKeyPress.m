@@ -35,7 +35,6 @@ while GetSecs() - experimentStart < secondWordOnset + params.secondDuration
             fprintf('key response given\n')
             responded = 1; % mark that a response has been given
         else
-            % fprintf ('no response given\n')
         end
     end
 end

@@ -11,7 +11,7 @@ deviceIndex = getdeviceIndex();
 % Running on PTB-3? Abort otherwise.
 AssertOpenGL;
 
-%% collect subject info (what other information?)
+%% collect subject info
 subjectNumber = input('Please enter subject number: '); % prompt the user to enter subject number
 
 %% randomly choose the correct key (b or y)
@@ -26,7 +26,7 @@ Screen('Preference', 'SkipSyncTests', 0);
 %[window, rect] = Screen('OpenWindow', 1); % open a window on the primary monitor
 Screen('TextFont', window, 'Arial');
 
-% load stimuli and log
+%% load stimuli and log
 pseudoFileName = [sprintf('../triallists/%s_pseudo/%d.csv', language, subjectNumber)]; % construct filename based on subject number and language
 realFileName = [sprintf('../triallists/%s_real/%d.csv', language, subjectNumber)];
 trialLists = {readtable(fullfile('../triallists', pseudoFileName)), readtable(fullfile('../triallists', realFileName))};
@@ -44,23 +44,24 @@ try
     % get trigger from scanner
     experimentStart = receiveTrigger('t', 'ESCAPE', window);
     
-    %% randomly choose the order of the trial lists
+    % randomly choose the order of the trial lists
     trialListOrder = randperm(2);
     bigBlockCount = 0;
 
-    % iterate over the triallists (randomly chose which one is shown first)
+    %% iterate over the triallists (randomly chose which one is shown first)
     for t = trialListOrder
         trialList = trialLists{t};
         trialOrder = randperm(height(trialList)); % randomize the order of trials
         trialList = trialList(trialOrder, :);
-        bigBlockCount = bigBlockCount+1;
+        bigBlockCount = bigBlockCount + 1;
             
-        %% get params
+        % get params
         [params] = getParams(window, trialList);
 
         for i = 1:params.nTrials
             % determine whether this is the last trial in a block
             blockNumber = ceil(i/params.nTrialsPerBlock);
+            isFirstTrialInBlock = mod(i-1, params.nTrialsPerBlock) == 0;
             isLastTrialInBlock = (mod(i, params.nTrialsPerBlock) == 0) || (i == params.nTrials);
 
             % get the current trial information
@@ -115,17 +116,21 @@ try
                     trialList.target_letter_before_error{i}, trialList.letter_after_error{i});        
             
             % blank screen until trial length = 2s
+            blankScreenOnset = GetSecs() - experimentStart;
             Screen('FillRect', window, 128);
             DrawFormattedText(window, ' ', 'center', 'center', 0);
             Screen('Flip', window);
             WaitSecs(params.blankScreen);
+            fprintf(fid_log, '%s,%f,%d,%d,%d\n', 'blankScreen', blankScreenOnset, t, blockNumber, i);
 
             % show feedback after every block
             presentFeedbackMsg (window, isLastTrialInBlock, blockNumber, nCorrect, params, bigBlockCount)
             
             if isLastTrialInBlock
-            nCorrect = 0;
-            fprintf('Block %d finished\n', blockNumber)
+                nCorrect = 0;
+                blockEndOnset = GetSecs () - experimentStart;
+                fprintf(fid_log, '%s,%f,%d,%d,%d\n', 'blockEnd', blockEndOnset, t, blockNumber, i);
+                fprintf('Block %d finished\n', blockNumber)
             end
     
             if i == params.nTrials && bigBlockCount == 2

@@ -1,13 +1,14 @@
 function scanner_starttime = receiveTrigger(trigger, escapeKey, window)
+%% This function is adapted from a script by Annahita Sarré
 
 text = sprintf('Waiting for the MRI signal');
+fprintf('Waiting for the trigger... \n')
 
 % display text
 DrawFormattedText(window, text, 'center', 'center', 0);
 Screen('Flip', window);
 
-% wait for the scanner trigger to start trial
-fprintf('Waiting for the trigger... \n')
+
 % Set the default values of the input arguments if they're not provided.
 if nargin < 1
     trigger = 't';
@@ -33,9 +34,5 @@ while 1
         end
     end
 end
-
 fprintf('Trigger received! \n')
-% Wait for a short duration to avoid KbCheck detecting the trigger key.
-% WaitSecs(0.5);
-
 end
