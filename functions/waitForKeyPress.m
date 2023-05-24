@@ -17,15 +17,15 @@ while GetSecs() - experimentStart < secondWordOnset + params.secondDuration
         if keyIsDown
             rt = ((secs - experimentStart) - secondWordOnset); % calculate reaction time
             keyName = KbName(keyCode);
-            if strcmp(keyName, correctKey) && is_error == 0 % check if the key pressed is correct and there is no error
+            if strcmp(keyName, correctKey) && (is_error == 0 || is_error == 2)  % check if the key pressed is correct and there is no error
                 correct = 1;
                 nCorrect = nCorrect + 1;
-            elseif strcmp(keyName, differentKey) && is_error == 1 % check if the key pressed is different and there is an error
+            elseif strcmp(keyName, differentKey) && (is_error == 1 || is_error == 3) % check if the key pressed is different and there is an error
                 correct = 1;
                 nCorrect = nCorrect + 1;
-            elseif strcmp(keyName, correctKey) && is_error == 1 % check if the key pressed is correct and there is an error
+            elseif strcmp(keyName, correctKey) && (is_error == 1 || is_error == 3) % check if the key pressed is correct and there is an error
                 correct = 0;
-            elseif strcmp(keyName, differentKey) && is_error == 0 % check if the key pressed is different and there is no error
+            elseif strcmp(keyName, differentKey) && (is_error == 0 || is_error == 2) % check if the key pressed is different and there is no error
                 correct = 0;
             elseif strcmp(keyName, 'ESCAPE') % check for escape key
                 error('Escape key pressed. Experiment terminated by user.');

@@ -1,13 +1,12 @@
-function presentFeedbackMsg (window, isLastTrialInBlock, blockNumber, nCorrect, params, bigBlockCount)
-
+function presentFeedbackMsg (window, isLastTrialInBlock, blockNumber, nCorrect, params)
 
 if isLastTrialInBlock
-    if blockNumber == params.nBlocks && bigBlockCount == 2 % check if this is the last block of the second triallist 
+    if blockNumber == params.nBlocksTotal  % check if this is the last block
         feedbackMsg = sprintf (['You got %d out of %d correct! \n\n' ...
                                 '\n\n This was the last block, congratulations on completing the experiment.' ...
                                 '\n\n Thank you for your participation!'], nCorrect, params.nTrialsPerBlock);
     else
-        feedbackMsg = sprintf('You got %d out of %d correct! \n\n \n\n The next block will start soon. ', nCorrect, params.nTrialsPerBlock);
+        feedbackMsg = sprintf('You got %d out of %d correct! \n\n \n\n The next block will start soon. ', nCorrect, params.nTrials);
     end
     Screen('TextSize', window, 30);
     fprintf ('Presenting feedback message.\n')

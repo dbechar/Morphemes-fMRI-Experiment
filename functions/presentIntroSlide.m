@@ -1,4 +1,4 @@
-function present_intro_slide(window, correctKey, differentKey, responseKeys)
+function present_intro_slide(window, correctKey, differentKey, responseKeys, blockNumber)
 
 responseKeyCodes = KbName(responseKeys);
 
@@ -14,13 +14,12 @@ intro_text = sprintf(['In this experiment, you will first see a letter string, f
     '\n\n \n\n Please fixate on the cross and do not move your eyes.' ...
     '\n\n \n\n If you are ready to start the experiment, press a key'], char(correctKey), char(differentKey));
 
-% display intro text
-DrawFormattedText(window, intro_text, 'center', 'center', 0);
-Screen('Flip', window);
-
-fprintf ('Waiting for button press by participant to start block.\n')
-
-while 1 % wait for keypress
+% display intro text (depending on which block is played intro text varies)
+if blockNumber == 1
+    DrawFormattedText(window, intro_text, 'center', 'center', 0);
+    Screen('Flip', window);
+    fprintf ('Waiting for button press by participant to start block.\n')
+    while 1 % wait for keypress
         [keyIsDown, ~, keyCode] = KbCheck();
         if keyIsDown && any(keyCode(responseKeyCodes))
             break;
@@ -29,5 +28,28 @@ while 1 % wait for keypress
         end
         WaitSecs(0.1);
     end
+    
+else 
+    presentationStart = GetSecs();
+    DrawFormattedText(window, 'The next block will start in 30 seconds', 'center', 'center', 0);
+    Screen('Flip', window);
+    fprintf('Presenting block intro message. Block will start in 30 seconds.\n');
+    
+    duration = 30;  % Duration of the presentation in seconds
+    escapeKeyPressed = false;
+    
+    while GetSecs() - presentationStart < duration
+        [keyIsDown, ~, keyCode] = KbCheck();
+        if keyIsDown && keyCode(KbName('ESCAPE')) % Check for escape key
+            escapeKeyPressed = true;
+            break; % Exit the loop if escape key is pressed
+        end
+    end
+    
+    if escapeKeyPressed
+        error('Escape key pressed. Experiment terminated by user.');
+    end
 end
+
+
 
