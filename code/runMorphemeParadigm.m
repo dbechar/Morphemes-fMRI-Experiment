@@ -71,13 +71,13 @@ try
         is_error = trialList.is_error(i);
 
         % present fixation cross
-        firstFixationOnset = GetSecs - experimentStart;
+        FixationOnset = GetSecs - experimentStart;
         Screen('FillRect', window, 128);
         Screen('TextSize', window, 40);
         DrawFormattedText(window, '+', 'center', 'center', 0);
         Screen('Flip', window);
-        WaitSecs(params.firstFixationDuration);
-        fprintf(fid_log, '%s,%f,%d,%d\n', 'firstFixation', firstFixationOnset, blockNumber, i);
+        WaitSecs(params.FixationDuration);
+        fprintf(fid_log, '%s,%f,%d,%d\n', 'firstFixation', FixationOnset, blockNumber, i);
 
         % present first word
         firstWordOnset = GetSecs() - experimentStart;
@@ -91,7 +91,7 @@ try
         maskOnset = GetSecs() - experimentStart;
         Screen('DrawTexture', window, texture, [], [], 0);
         Screen('Flip', window);
-        WaitSecs(params.secondFixationDuration);
+        WaitSecs(params.maskDuration);
         fprintf(fid_log, '%s,%f,%d,%d,%s\n', 'mask', maskOnset, blockNumber, i, first{1});
 
         % present second word
@@ -134,7 +134,7 @@ try
             fprintf(fid_log, '%s,%f,%d,%d\n', 'blockEnd', blockEndOnset, blockNumber, i);
             fprintf('Block %d finished\n', blockNumber)
         end
-        
+
         if i == params.nTrials
             fclose(fid_log);
             fprintf('Data is saved correctly\n')
