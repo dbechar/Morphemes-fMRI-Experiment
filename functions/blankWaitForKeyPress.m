@@ -1,4 +1,4 @@
-function [keyName, correct, nCorrect, rt, responded] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, params, secondWordOnset, experimentStart)
+function [keyName, correct, nCorrect, rt] = blankWaitForKeyPress(correctKey, differentKey, is_error, nCorrect, params, secondWordOnset, experimentStart, blankScreenOnset)
 
 if ~nargin
     correctKey = [];
@@ -11,7 +11,7 @@ rt = NaN;
 responded = 0;
 
 % get response and check if it's correct
-while GetSecs() - experimentStart < secondWordOnset + params.secondDuration
+while GetSecs() - experimentStart < blankScreenOnset + params.blankScreen
     if ~responded % only check for key response if it hasn't been given already
         [keyIsDown, secs, keyCode] = KbCheck();
         if keyIsDown

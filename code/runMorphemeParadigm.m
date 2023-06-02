@@ -103,7 +103,7 @@ try
         Screen('Flip', window);
 
         % get response and check if it's correct
-        [keyName, correct, nCorrect, rt] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, params, secondWordOnset, experimentStart);
+        [keyName, correct, nCorrect, rt, responded] = waitForKeyPress(correctKey, differentKey, is_error, nCorrect, params, secondWordOnset, experimentStart);
         
         WaitSecs(params.secondDuration);
         Screen('TextStyle', window, 0); % reset the text style to normal
@@ -117,13 +117,21 @@ try
                 trialList.target_letter_before_error{i}, trialList.letter_after_error{i}, ...
                 trialList.error_word{i}, trialList.type{i});        
         
-        % blank screen until trial length = 2s
+        % blank screen 
+        event = 'blank';
         blankScreenOnset = GetSecs() - experimentStart;
         Screen('FillRect', window, 128);
         DrawFormattedText(window, ' ', 'center', 'center', 0);
         Screen('Flip', window);
+
+        % get response and check if it's correct (only if not yet responded)
+        if responded == 0
+            [keyName, correct, nCorrect, rt] = blankWaitForKeyPress(correctKey, differentKey, is_error, nCorrect, params, secondWordOnset, experimentStart, blankScreenOnset);
+        end
+
         WaitSecs(params.blankScreen);
-        fprintf(fid_log, '%s,%f,%d,%d\n', 'blankScreen', blankScreenOnset, blockNumber, i);
+        fprintf(fid_log, '%s,%f,%d,%d,%s,%s,%d,%s,%s,%d,%f\n', 'blankScreen', blankScreenOnset, ...
+            blockNumber, i, first{1}, second{1}, is_error, correctKey, keyName, correct, rt);
 
         % show feedback after every block
         presentFeedbackMsg (window, isLastTrialInBlock, blockNumber, nCorrect, params)

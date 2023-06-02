@@ -1,6 +1,7 @@
-function fid_log=createLogFileMorphemeParadigm(subjectNumber, blockNumber)
+function fid_log=createLogFile(subjectNumber, blockNumber)
 
-resultsFileName = fullfile('..', 'subject_data', [num2str(subjectNumber) '_block' num2str(blockNumber) '.csv']); % filename for results file
+timestamp=gettimestamp();
+resultsFileName = fullfile('..', 'subject_data', ['par' num2str(subjectNumber) '_block' num2str(blockNumber) '_' timestamp '.csv']); % filename for results file
 headers = {'eventName', 'eventOnset','block','trial', 'first', 'second', 'is_error', ...
             'correctKey', 'responseKey', 'correct', 'rt', 'condition', ...
             'prefix', 'root', 'suffix', 'target_type', 'wordlength', 'error_to_which_morpheme',...
