@@ -15,11 +15,16 @@ AssertOpenGL;
 subjectNumber = input('Please enter subject number (0 - 20): '); % prompt the user to enter subject number
 blockNumber = input ('Please enter block number (1, 2, 3, or 4): '); % prompt the user to enter block number
 
-%% randomly choose the correct key (b or y)
+%% choose the correct key (b or y) based on subject number 
 responseKeys = {'b', 'y'};
-correctKeyIndex = randi(2);
-correctKey = responseKeys{correctKeyIndex};
-differentKey = setdiff(responseKeys, correctKey);
+
+if mod(subjectNumber, 2) == 0
+    correctKey = 'b';
+    differentKey = 'y';
+else
+    correctKey = 'y';
+    differentKey = 'b';
+end
 
 %% set up the screen and some initial variables
 Screen('Preference', 'SkipSyncTests', 1); 
@@ -33,6 +38,10 @@ fullTrialList = readtable(path);
 
 blockName = sprintf('block%d', blockNumber); % Construct the block name string
 trialList = fullTrialList(strcmp(fullTrialList.block, blockName), :); % Filter the trials based on the block number
+
+% Load the mask image
+mask = imread('../mask.jpg');
+texture = Screen('MakeTexture', window, mask);
 
 %% start experiment
 % loop over all trials of block
@@ -80,7 +89,7 @@ try
         
         % present mask (jittered presentation)
         maskOnset = GetSecs() - experimentStart;
-        DrawFormattedText(window, '########## \n ##########', 'center', 'center', 0);
+        Screen('DrawTexture', window, texture, [], [], 0);
         Screen('Flip', window);
         WaitSecs(params.secondFixationDuration);
         fprintf(fid_log, '%s,%f,%d,%d,%s\n', 'mask', maskOnset, blockNumber, i, first{1});
@@ -125,7 +134,7 @@ try
             fprintf(fid_log, '%s,%f,%d,%d\n', 'blockEnd', blockEndOnset, blockNumber, i);
             fprintf('Block %d finished\n', blockNumber)
         end
-
+        
         if i == params.nTrials
             fclose(fid_log);
             fprintf('Data is saved correctly\n')
