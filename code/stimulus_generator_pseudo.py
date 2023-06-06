@@ -84,11 +84,26 @@ for par in range (num_par):
     df_complete.insert (1, 'second', second)
     df_complete['type'] = 'pseudo'
     
-    # RANDOMIZE ORDER
-    df_complete = df_complete.sample (frac = 1)
+    # REORDER TRIALS
+    conditions = df_design['Condition'].unique()
+    order = []
+    df_complete = df_complete.reset_index(drop=True)
+    
+    
+    for i in range (0, int(len(df_complete)/len (conditions))):
+        random.shuffle(conditions)
+        for condition in conditions: 
+            condition_rows = df_complete[df_complete['condition'] == condition].index
+            row_number = random.choice(condition_rows)
+            while row_number  in order:
+                condition_rows = df_complete[df_complete['condition'] == condition].index
+                row_number = random.choice(condition_rows)
+            order.append(row_number)
+                
+    df_reordered = df_complete.loc[order]
+    
     
     # SAVE TRIALLIST IN CORRECT FOLDER
     path = f'../triallists/temp_lists/{language}_pseudo/{str(par)}.csv'
-    df_complete.to_csv (path, index = False)
-    
-    print (f'Triallist for participant {par} finished')
+    df_reordered.to_csv (path, index = False)
+    print (f'{par} finished')
