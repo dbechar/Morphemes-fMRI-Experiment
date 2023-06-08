@@ -32,7 +32,7 @@ Screen('Preference', 'SkipSyncTests', 1);
 [window, rect] = Screen('OpenWindow', 0); % open a window on the primary monitor
 Screen('TextFont', window, 'Arial');
 
-%% load stimuli and log
+%% load stimuli
 path =   [sprintf('../triallists/%s/%d.csv', language, subjectNumber)]; % construct filename based on language and subject number
 fullTrialList = readtable(path);
 
@@ -72,7 +72,7 @@ try
 
         % present fixation cross
         FixationOnset = GetSecs - experimentStart;
-        Screen('FillRect', window, 128);
+       % Screen('FillRect', window, 128);
         Screen('TextSize', window, 40);
         DrawFormattedText(window, '+', 'center', 'center', 0);
         Screen('Flip', window);
